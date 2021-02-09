@@ -1,0 +1,21 @@
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px 30px 10px 10px;
+    text-align: left;
+}
+
+li {
+    text-decoration: none;
+}
+
+.add-book {
+    margin: 20px;
+}
+
+.inputField {
+    padding: 10px;
+}

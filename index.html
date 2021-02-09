@@ -7,6 +7,13 @@
     <!-- <link rel="stylesheet" type="text/css" href="reset.css"> -->
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="icon" href="/favicon-32x32.png">
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-database.js"></script>
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-analytics.js"></script>
+
 </head>
 
 <body>
@@ -32,11 +39,28 @@
                 <th>Title</th>
                 <th>Author</th>
                 <th>Year Published</th>
-                <th></th>
+                <td></td>
             </tr>
         </table>
     </div>
-</body>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyBqEvRltdnRm7F8fCVGazCtNjZzYQyfI80",
+    authDomain: "library-ced53.firebaseapp.com",
+    projectId: "library-ced53",
+    storageBucket: "library-ced53.appspot.com",
+    messagingSenderId: "607114641526",
+    appId: "1:607114641526:web:44a4aa77ef8d5ec19d1f57",
+    measurementId: "G-J23LSGD401"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
 <script src="script.js"></script>
+</body>
 
 </html>

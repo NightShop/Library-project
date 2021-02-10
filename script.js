@@ -1,4 +1,4 @@
-let myLibrary = [];
+let localLib = [];
 
 /* const dbRefObject = firebase.database().ref().myLibrary;
 dbRefObject.on("value", snap => console.log(snap.val())) */
@@ -7,15 +7,26 @@ let database = firebase.database();
 let ref = database.ref("books");
 ref.on("value", gotData, errData);
 
+function clearEveryThing() {
+    localLib = [];
+    let allBooks = document.querySelectorAll(".singleBook");
+    for(let i = 0; i < allBooks.length; i++) {
+        allBooks[i].remove();
+    }
+}
+
 function gotData(data) {
+    clearEveryThing();
     books = data.val();
     console.log(books);
     let keys = Object.keys(data.val());
     console.log(keys);
     for(let i = 0; i < keys.length; i++)
     {
-        new Book(books[keys[i]].title, books[keys[i]].author, books[keys[i]].year).displayBook();
-        
+        let temp = new Book(books[keys[i]].title, books[keys[i]].author, books[keys[i]].year, keys[i]);
+        temp.read = books[keys[i]].read;
+        temp.displayBook();
+        localLib.push(temp);
         console.log(books[keys[i]]);
     }
     
@@ -27,10 +38,11 @@ function errData(err) {
 }
 
 class Book {
-    constructor(title, author, year) {
+    constructor(title, author, year, id) {
         this.title = title;
         this.author = author;
         this.year = year;
+        this.id = id;
         this.read = false;
         return this;
     }
@@ -67,7 +79,7 @@ class Book {
         bookReadCell.appendChild(bookReadCellPara);
 
         let readButton = document.createElement("button");
-        readButton.setAttribute("data-id", this.library.indexOf(this))
+        readButton.setAttribute("data-id", this.id);
         readButton.addEventListener("click", setBookReadButton);
         bookReadCell.appendChild(readButton);
 
@@ -75,7 +87,7 @@ class Book {
 
         let deleteButtonCell = document.createElement("td");
         let deleteButton = document.createElement("button");
-        deleteButton.setAttribute("data-id", this.library.indexOf(this));
+        deleteButton.setAttribute("data-id", this.id);
         deleteButtonCell.appendChild(deleteButton);
         deleteButton.textContent = "Delete book";
         deleteButton.addEventListener("click", deleteBookEvent);
@@ -85,9 +97,11 @@ class Book {
         return this;
     }
 
-    addBookToLibrary() {
-        this.library.push(this);
-        ref.push(this);
+    addBookToFireBase() {
+        let newBookRef = ref.push();
+        console.log(newBookRef.key);
+        this.id = newBookRef.key;
+        newBookRef.set(this);
         return this;
     }
 
@@ -99,7 +113,7 @@ class Book {
         let _title = document.querySelector("#bookTitleInput");
         let _author = document.querySelector("#bookAuthorInput");
         let _year = document.querySelector("#bookYearInput");
-        new Book(_title.value, _author.value, _year.value).addBookToLibrary().displayBook();
+        new Book(_title.value, _author.value, _year.value, "test").addBookToFireBase();
         _title.value = "";
         _author.value = "";
         _year.value = "";
@@ -108,31 +122,37 @@ class Book {
     }
 
 }
-//sets the library the class works with
-Book.prototype.library = myLibrary;
 
 function deleteBookEvent(elem) {
-    myLibrary.splice(elem.target.getAttribute("data-id"), 1);
-    let allBookRows = document.querySelectorAll(".singleBook");
-    console.log(allBookRows);
-    for(let i = 0; i < allBookRows.length; i++) {
-        allBookRows[i].parentNode.removeChild(allBookRows[i]);
-    }
-    Book.displayAllBooks();
+    let id = elem.target.getAttribute("data-id");
+
+    let obj = {};
+    obj[id] = null;
+    ref.update(obj);
+
 }
 
 function setBookReadButton(elem) {
-    let index = elem.target.getAttribute("data-id")
-    myLibrary[index].changeBookReadState();
-    elem.target.parentNode.firstChild.textContent = myLibrary[index].read;
+    let id = elem.target.getAttribute("data-id");
+    let bookToChange = localLib.find(book => book.id == id)
+    bookToChange.read = !bookToChange.read;
+    console.log(bookToChange);
+    let obj = {};
+    obj[id] = bookToChange;
+    ref.update(obj);
+
+    let para = document.querySelector(`[data-id=${CSS.escape(id)}]`).parentElement.firstChild;
+    console.log(document.querySelector(`[data-id=${CSS.escape(id)}]`));
+    para.textContent = bookToChange.read.toString();
+
 }
 
 
-/* new Book("The Hobbit", "J. R. R. Tolkien", 1937).addBookToLibrary().displayBook();
-new Book("Hitchhiker's guide to the galaxy", "Douglas Adams", 1978).addBookToLibrary().displayBook();
-new Book("Atomic Habits", "James Clear", 2018).addBookToLibrary().displayBook();
- */
+/* new Book("The Hobbit", "J. R. R. Tolkien", 1937).displayBook().addBookToFireBase();
+new Book("Hitchhiker's guide to the galaxy", "Douglas Adams", 1978).displayBook().addBookToFireBase();
+new Book("Atomic Habits", "James Clear", 2018).displayBook().addBookToFireBase();
 
+ */
 
 
 const addBookButton = document.querySelector("#submitNewBook");
